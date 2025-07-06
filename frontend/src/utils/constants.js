@@ -1,0 +1,3 @@
+const GOOD_PASSWORD_SCORE = 3;
+const CONSTANTS = { GOOD_PASSWORD_SCORE };
+export default CONSTANTS;

@@ -1,0 +1,15 @@
+.title-style {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #1f2937;
+}
+.card-transition {
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+.background-style {
+  min-height: 100vh;
+  padding: 1rem;
+  background: linear-gradient(to bottom right, #3b82f6, #8b5cf6);
+}

@@ -1,0 +1,50 @@
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  firstName String
+  lastName  String
+  mobile    String  @unique
+  password  String
+  address   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lastPasswordChangeAt DateTime @default(now())
+  password_reset_tokens passwordResetTokens[]
+  remember_me_tokens RememberMeToken[]
+
+  @@map("users")
+}
+
+model passwordResetTokens {
+  id        String   @id @default(cuid())
+  userId    String
+  hashedToken String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  used Boolean @default(false)
+  user      User @relation(fields: [userId], references: [id])
+}
+
+model RememberMeToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User @relation(fields: [userId], references: [id])
+
+  @@map("remember_me_tokens")
+}
