@@ -17,7 +17,8 @@ module.exports = {
   ACCESS_TOKEN_EXPIRATION: "1h", // Access token expiration time
   REMEMBER_ME_TOKEN_SECRET: process.env.REMEMBER_ME_TOKEN_SECRET,
   REMEMBER_ME_TOKEN_EXPIRATION: "1d", // Remember me token expiration time
-  COOKIE_EXPIRATION: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+  COOKIE_JWT_EXPIRATION: 1 * 60 * 60 * 1000, // 1 hour in milliseconds
+  COOKIE_REMEMBER_ME_EXPIRATION: 24 * 60 * 60 * 1000, // 1 day in milliseconds
   CODE_RESPONSES,
   GOOD_PASSWORD_SCORE,
   EMAIL_REGEX: /^[^\s@]+@[^\s@]+\.[^\s@]+/,

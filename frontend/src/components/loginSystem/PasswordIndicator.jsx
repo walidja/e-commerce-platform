@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Form, ProgressBar } from "react-bootstrap";
 import zxcvbn from "zxcvbn";
 import PasswordInput from "./PasswordInput";

@@ -10,8 +10,9 @@ const {
   ACCESS_TOKEN_EXPIRATION,
   REMEMBER_ME_TOKEN_SECRET,
   REMEMBER_ME_TOKEN_EXPIRATION,
-  COOKIE_EXPIRATION,
   CODE_RESPONSES,
+  COOKIE_JWT_EXPIRATION,
+  COOKIE_REMEMBER_ME_EXPIRATION,
 } = require("./constants");
 
 // Initialize Prisma Client
@@ -44,6 +45,14 @@ const signToken = (userId, secretKey, expiresIn) => {
     expiresIn: expiresIn,
   });
 };
+const createCookieOptions = (rememberMe) => {
+  return {
+    httpOnly: true,
+    secure: true, //process.env.NODE_ENV === "production", // Use secure cookies in production
+    sameSite: "None", // Use 'None' for cross-site cookies
+    maxAge: rememberMe ? COOKIE_REMEMBER_ME_EXPIRATION : COOKIE_JWT_EXPIRATION, // Set cookie expiration based on rememberMe
+  };
+};
 
 const createSendAccessToken = async (userId, res, rememberMe) => {
   console.log("Creating and sending access token for user ID:", userId);
@@ -53,6 +62,7 @@ const createSendAccessToken = async (userId, res, rememberMe) => {
     ACCESS_TOKEN_SECRET,
     ACCESS_TOKEN_EXPIRATION
   );
+  res.cookie("jwt", accessToken, createCookieOptions(false));
   // If rememberMe is true, create a remember me token
   if (rememberMe) {
     await createRememberMeToken(userId, res);
@@ -77,7 +87,7 @@ const createRememberMeToken = async (userId, res) => {
     REMEMBER_ME_TOKEN_EXPIRATION
   );
   // Store the remember me token in databse
-  const expiresAt = new Date(Date.now() + COOKIE_EXPIRATION);
+  const expiresAt = new Date(Date.now() + COOKIE_REMEMBER_ME_EXPIRATION);
 
   try {
     await prisma.rememberMeToken.create({
@@ -87,11 +97,8 @@ const createRememberMeToken = async (userId, res) => {
         expiresAt,
       },
     });
-    res.cookie("rememberMeToken", rememberMeToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: COOKIE_EXPIRATION,
-    });
+    res.cookie("rememberMeToken", rememberMeToken, createCookieOptions(true));
+    console.log("Remember me token created and cookie set successfully.");
     return rememberMeToken;
   } catch (error) {
     console.error("Error creating remember me token:", error);
@@ -107,19 +114,21 @@ const clearRememberMeToken = async (req, res) => {
       prisma.rememberMeToken.deleteMany({
         where: {
           token: await hash(rememberMeToken),
-          userId: req.userId,
         },
       });
       // clear cookie
-      res.clearCookie("rememberMeToken", {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: COOKIE_EXPIRATION,
-      });
+      res.clearCookie("rememberMeToken", createCookieOptions(true));
     }
   } catch (err) {
     console.log("Error clearing remember me token:", err);
   }
+};
+
+const clearAccessTokenCookie = (req, res) => {
+  if (req.cookies.jwt) {
+    res.clearCookie("jwt", createCookieOptions(false));
+  }
+  console.log("Access token cookie cleared successfully.");
 };
 
 module.exports = {
@@ -130,4 +139,5 @@ module.exports = {
   createSendAccessToken,
   createRememberMeToken,
   clearRememberMeToken,
+  clearAccessTokenCookie,
 };

@@ -1,21 +1,13 @@
-import axios from "axios";
+import createAxiosInstance, { errorMessage } from "./api";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-const userApi = axios.create({
-  baseURL: `${API_BASE_URL}user/`,
-  headers: {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-  },
-});
+const userApi = createAxiosInstance("user");
 
 export const registerUser = async (userData) => {
   try {
     const response = await userApi.post("register", userData);
     return response.data;
   } catch (error) {
-    throw error.response ? error.response.data.message : error.message;
+    throw errorMessage(error);
   }
 };
 
@@ -28,7 +20,7 @@ export const loginUser = async (email, password, rememberMe) => {
     });
     return response.data;
   } catch (error) {
-    throw error.response ? error.response.data.message : error.message;
+    throw errorMessage(error);
   }
 };
 
@@ -37,7 +29,7 @@ export const forgotPassword = async (email) => {
     const response = await userApi.post("forgot-password", { email });
     return response.data;
   } catch (error) {
-    throw error.response ? error.response.data.message : error.message;
+    throw errorMessage(error);
   }
 };
 
@@ -49,6 +41,15 @@ export const resetPassword = async (token, newPassword) => {
     });
     return response.data;
   } catch (error) {
-    throw error.response ? error.response.data.message : error.message;
+    throw errorMessage(error);
+  }
+};
+
+export const logout = async () => {
+  try {
+    await userApi.post("logout");
+    console.log("logged out successfully!!");
+  } catch (error) {
+    throw errorMessage(error);
   }
 };

@@ -4,9 +4,7 @@
  * Uses Prisma ORM for database operations.
  */
 
-const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-const jwt = require("jsonwebtoken");
 const { PrismaClient, Prisma } = require("../generated/prisma/client");
 const {
   isValidEmail,
@@ -22,6 +20,7 @@ const {
   generateToken,
   createSendAccessToken,
   clearRememberMeToken,
+  clearAccessTokenCookie,
 } = require("../utils/authUtils");
 const prisma = new PrismaClient();
 
@@ -69,7 +68,9 @@ const registerUser = async (req, res) => {
       },
     });
 
-    return res.status(CODE_RESPONSES.CREATED).json({ newUser });
+    return res
+      .status(CODE_RESPONSES.CREATED)
+      .json({ status: "SUCCESS", data: newUser });
   } catch (error) {
     console.log(error);
     let errMsg = error;
@@ -249,7 +250,7 @@ const resetPassword = async (req, res) => {
     }
     res
       .status(CODE_RESPONSES.SUCCESS)
-      .json({ message: "Password updated successfully" });
+      .json({ status: "SUCCESS", message: "Password updated successfully" });
   } catch (err) {
     console.error("Password reset transaction failed:", err);
     res
@@ -262,6 +263,7 @@ const logout = async (req, res) => {
   try {
     console.log("Logging out user with ID:", req.userId);
     await clearRememberMeToken(req, res);
+    clearAccessTokenCookie(req, res);
     return res
       .status(CODE_RESPONSES.SUCCESS)
       .json({ message: "Logged out successfully" });

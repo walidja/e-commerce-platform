@@ -24,6 +24,7 @@ model User {
   lastPasswordChangeAt DateTime @default(now())
   password_reset_tokens passwordResetTokens[]
   remember_me_tokens RememberMeToken[]
+  shop  Shop?
 
   @@map("users")
 }
@@ -47,4 +48,53 @@ model RememberMeToken {
   user      User @relation(fields: [userId], references: [id])
 
   @@map("remember_me_tokens")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  products  Product[]
+  @@map("categories")
+}
+
+model Shop {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  description String
+  userId  String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  products  Product[]
+  user  User  @relation(fields: [userId], references: [id])
+  @@map("shops")
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  categoryId  String
+  shopId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  category    Category @relation(fields: [categoryId], references: [id])
+  shop        Shop     @relation(fields: [shopId], references: [id])
+  productModels productModel[]
+  @@map("products")
+}
+
+model productModel {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  price       Float
+  stock       Int
+  image       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  productId   String
+  product     Product @relation(fields: [productId], references: [id])
+  @@map("product_models")
 }

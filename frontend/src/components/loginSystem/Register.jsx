@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import { Form, Container, Row, Col, Card } from "react-bootstrap";
-import { registerUser } from "../api/user";
-import RedAlert from "./RedAlert";
+import { registerUser } from "../../api/user";
+import RedAlert from "../generic/RedAlert";
 import PasswordIndicator from "./PasswordIndicator";
-import { isGoodPasswordScore, scrollToTop } from "../utils/helperFunctions";
+import { isGoodPasswordScore, scrollToTop } from "../../utils/helperFunctions";
 import { Link } from "react-router-dom";
 import PasswordInput from "./PasswordInput";
-import LoadingButton from "./LoadingButton";
+import LoadingButton from "../generic/LoadingButton";
 import "react-phone-number-input/style.css";
 
 const EMPTY_USER = {

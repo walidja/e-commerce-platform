@@ -1,19 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Form,
-  Button,
-  Container,
-  Row,
-  Col,
-  Card,
-  Alert,
-  Spinner,
-} from "react-bootstrap";
-import { loginUser } from "../api/user";
-import RedAlert from "./RedAlert";
+import { Form, Container, Row, Col, Card } from "react-bootstrap";
+import { loginUser } from "../../api/user";
+import RedAlert from "../generic/RedAlert";
 import PasswordInput from "./PasswordInput";
-import LoadingButton from "./LoadingButton";
+import LoadingButton from "../generic/LoadingButton";
 
 const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -33,14 +24,11 @@ const LoginForm = () => {
       loginUser(email, password, rememberMe)
         .then((response) => {
           console.log("Login successful:", response);
-          const accessToken = response.accessToken;
-          // Store the access token in local storage or context
-          localStorage.setItem("accessToken", accessToken);
           // Clear the form fields after a "successful" submission
           setEmail("");
           setPassword("");
           // Redirect to home page after successful login
-          navigate("/home");
+          navigate("/");
         })
         .catch((error) => {
           console.error("Login error:", error);

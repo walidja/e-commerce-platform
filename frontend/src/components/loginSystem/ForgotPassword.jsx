@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Form, Container, Row, Col, Card, Alert } from "react-bootstrap";
-import { forgotPassword } from "../api/user";
-import LoadingButton from "./LoadingButton";
-import RedAlert from "./RedAlert";
+import { Form, Container, Row, Col, Card } from "react-bootstrap";
+import { forgotPassword } from "../../api/user";
+import LoadingButton from "../generic/LoadingButton";
+import RedAlert from "../generic/RedAlert";
 
 function ForgotPassword() {
   const [isEmailSent, setIsEmailSent] = useState(false);

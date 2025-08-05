@@ -19,7 +19,19 @@ const AppError = require("../utils/appUtils");
 const prisma = new PrismaClient();
 
 const verifyJWT = async (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
+  let token;
+  // 1) Get token from header (for regular access)
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  }
+  // 2) Get token from cookie (for "Remember Me" flow)
+  if (!token && req.cookies.jwt) {
+    // Check for JWT cookie first
+    token = req.cookies.jwt;
+  }
   if (!token) {
     // check if there is a remember me token in cookies
     const rememberMeToken = req.cookies?.rememberMeToken;
@@ -57,7 +69,7 @@ const verifyJWT = async (req, res, next) => {
       );
     }
     const user = await prisma.user.findUnique({
-      where: { id: req.userId },
+      where: { id: decoded.userId },
     });
     if (!user) {
       return next(new AppError("User not found", CODE_RESPONSES.UNAUTHORIZED));
@@ -73,6 +85,7 @@ const verifyJWT = async (req, res, next) => {
       );
     }
     req.userId = decoded.userId;
+    req.username = user.firstName + " " + user.lastName;
     next();
   });
 };
@@ -124,12 +137,20 @@ const refreshJWTwithRememberMe = async (req, res, next) => {
   }
 
   jwt.verify(
-    validRememberMeToken.token,
+    rememberMeToken,
     REMEMBER_ME_TOKEN_SECRET,
-    (err, decoded) => {
+    async (err, decoded) => {
       if (err) {
         return next(
           new AppError("Invalid remember me token.", CODE_RESPONSES.FORBIDDEN)
+        );
+      }
+      const user = await prisma.user.findUnique({
+        where: { id: decoded.userId },
+      });
+      if (!user) {
+        return next(
+          new AppError("User not found", CODE_RESPONSES.UNAUTHORIZED)
         );
       }
       // If the token is valid, we can create a new access token
@@ -138,7 +159,7 @@ const refreshJWTwithRememberMe = async (req, res, next) => {
         token: accessToken,
       });
       req.userId = decoded.userId;
-      req.local.userId = decoded.userId;
+      req.username = user.firstName + " " + user.lastName;
       next();
     }
   );

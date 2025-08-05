@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import { Container, Row, Col, Form, Button, Card } from "react-bootstrap";
-import PasswordIndicator from "./PasswordIndicator";
-import RedAlert from "./RedAlert";
-import { isGoodPasswordScore, scrollToTop } from "../utils/helperFunctions";
-import { resetPassword } from "../api/user";
+import { Container, Row, Col, Form, Card } from "react-bootstrap";
+import { isGoodPasswordScore, scrollToTop } from "../../utils/helperFunctions";
+import { resetPassword } from "../../api/user";
 import { useSearchParams } from "react-router-dom";
-import LoadingButton from "./LoadingButton";
+import LoadingButton from "../generic/LoadingButton";
+import RedAlert from "../generic/RedAlert";
 import PasswordInput from "./PasswordInput";
+import PasswordIndicator from "./PasswordIndicator";
+
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
