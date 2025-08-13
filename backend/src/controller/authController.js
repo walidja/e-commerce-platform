@@ -4,8 +4,6 @@ const { PrismaClient } = require("../generated/prisma/client");
 const prisma = new PrismaClient();
 
 const checkAuth = async (req, res) => {
-  console.log("aaaaaa", req.userId);
-
   return res.status(CODE_RESPONSES.SUCCESS).json({
     userId: req.userId,
     username: req.username,

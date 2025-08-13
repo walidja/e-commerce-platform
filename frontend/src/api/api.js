@@ -1,12 +1,11 @@
 import axios from "axios";
+import CONSTANTS from "../utils/constants";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-const createAxiosInstance = (route) => {
+const createAxiosInstance = (route, isFormData = false) => {
   return axios.create({
-    baseURL: `${API_BASE_URL}${route}`,
+    baseURL: `${CONSTANTS.API_BASE_URL}${route}`,
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": isFormData ? "multipart/form-data" : "application/json",
       Accept: "application/json",
     },
     withCredentials: true, // Include cookies in the request

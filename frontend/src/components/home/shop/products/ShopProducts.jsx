@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Button, Row } from "react-bootstrap";
 import { Plus } from "react-bootstrap-icons";
-import AddProductModal from "./AddProductModal";
+import AddProductModal from "../../../generic/productDetails/AddProductModal";
 import { getShopProducts } from "../../../../api/shop";
-import ProductGrid from "../../../generic/ProductGrid";
+import ProductGrid from "../../../generic/productDetails/ProductGrid";
 import CONSTANTS from "../../../../utils/constants";
 
 const ShopProducts = ({ shopId }) => {
@@ -11,6 +11,7 @@ const ShopProducts = ({ shopId }) => {
   const [shopProducts, setShopProducts] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isEditable, setIsEditable] = useState(true);
 
   useEffect(() => {
     setIsLoading(true);
@@ -27,9 +28,24 @@ const ShopProducts = ({ shopId }) => {
       });
   }, [showModal]);
 
+  const handleProductClick = (product) => {
+    console.log("Product clicked:", product);
+    product.models = product.productModels;
+    setProduct(product);
+    setIsEditable(false);
+    setShowModal(true);
+  };
+
   return (
     <Row>
-      {isLoading ? "Loading..." : <ProductGrid products={shopProducts} />}
+      {isLoading ? (
+        "Loading..."
+      ) : (
+        <ProductGrid
+          products={shopProducts}
+          handleProductClick={handleProductClick}
+        />
+      )}
       <Button
         variant="primary"
         className="rounded-circle d-flex align-items-center justify-content-center shadow"
@@ -52,6 +68,7 @@ const ShopProducts = ({ shopId }) => {
         shopId={shopId}
         product={product}
         setProduct={setProduct}
+        isEditable={isEditable}
       />
     </Row>
   );

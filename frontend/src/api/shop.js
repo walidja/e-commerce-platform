@@ -1,6 +1,7 @@
 import createAxiosInstance, { errorMessage } from "./api";
 
 const shopApi = createAxiosInstance("shop");
+const shopApiWithFormData = createAxiosInstance("shop", true);
 
 export const createShop = async (shopData) => {
   try {
@@ -45,7 +46,24 @@ export const addShopProduct = async (shopId, product) => {
       }
     }
 
-    const response = await shopApi.post(`/products/${shopId}`, product);
+    // Prepare form data for the product and its models
+    const formData = new FormData();
+    for (const key in product) {
+      if (key === "models") {
+        product.models.forEach((model) => {
+          for (const modelKey in model) {
+            formData.append(`models_${modelKey}`, model[modelKey]);
+          }
+        });
+      } else {
+        formData.append(key, product[key]);
+      }
+    }
+
+    const response = await shopApiWithFormData.post(
+      `/products/${shopId}`,
+      formData
+    );
     return response.data.data;
   } catch (error) {
     console.error("Failed to add product,", error.message);

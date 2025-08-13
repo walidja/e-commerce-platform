@@ -1,4 +1,6 @@
-import { Col, Form, Row } from "react-bootstrap";
+import { Col, Form, Image, Row } from "react-bootstrap";
+import CONSTANTS from "../../../utils/constants";
+import ProductImage from "./ProductImage";
 
 const ProductModelForm = ({ product, index, isEditable, handleChange }) => {
   return (
@@ -72,19 +74,25 @@ const ProductModelForm = ({ product, index, isEditable, handleChange }) => {
         <Form.Label column sm={3} htmlFor="modal-image">
           Image:
         </Form.Label>
-        <Col sm={8}>
-          <Form.Control
-            id="modal-image"
-            type="file"
-            name="image"
-            accept="image/*"
-            onChange={handleChange}
-            value={product.models[index].image}
-            disabled={!isEditable}
-            required
-          />
-        </Col>
+        {isEditable && (
+          <Col sm={8}>
+            <Form.Control
+              id="modal-image"
+              type="file"
+              name="image"
+              accept="image/*"
+              onChange={handleChange}
+              disabled={!isEditable}
+              required
+            />
+          </Col>
+        )}
       </Form.Group>
+      {product.models[index].image && (
+        <Col className="text-center">
+          <ProductImage img={product.models[index].image} />
+        </Col>
+      )}
     </>
   );
 };

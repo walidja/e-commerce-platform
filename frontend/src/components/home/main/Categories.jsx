@@ -1,9 +1,8 @@
 import { ListGroup, Nav } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import { getCategories } from "../../../api/categories";
-import { NavLink } from "react-router-dom";
 
-const Categories = ({ setCategory }) => {
+const Categories = ({ setCategory, category }) => {
   const [categories, setCategories] = useState([]);
   useEffect(() => {
     const fetchCategories = async () => {
@@ -19,22 +18,39 @@ const Categories = ({ setCategory }) => {
   }, []);
 
   return (
-    <Nav className="flex-column w-100 " variant="dark">
-      {categories.map((category) => (
-        <Nav.Item key={category.id}>
-          <NavLink
-            className={({ isActive }) =>
-              `text-decoration-none py-3 px-4 text-white nav-link${
-                isActive ? " active" : ""
-              }`
-            }
-            onClick={() => setCategory(category)}
-          >
-            {category.name}
-          </NavLink>
-        </Nav.Item>
+    // <Nav className="flex-column w-100 bg-secondary">
+    //   {categories.map((category) => (
+    //     <Nav.Link
+    //       className={({ isActive }) =>
+    //         `text-decoration-none py-3 px-4 nav-link${
+    //           isActive ? " active bg-primary" : ""
+    //         }`
+    //       }
+    //       onClick={() => setCategory(category)}
+    //     >
+    //       {category.name}
+    //     </Nav.Link>
+    //   ))}
+    // </Nav>
+    <ListGroup className="flex-column w-100">
+      {categories.map((item) => (
+        <ListGroup.Item
+          key={item.id}
+          action
+          onClick={() => setCategory(item)}
+          style={{
+            backgroundColor:
+              category && category.id === item.id
+                ? "var(--bs-primary)"
+                : "var(--bs-secondary)",
+            color: "var(--bs-white)",
+            "--bs-list-group-action-hover-color": "initial",
+          }}
+        >
+          {item.name}
+        </ListGroup.Item>
       ))}
-    </Nav>
+    </ListGroup>
   );
 };
 

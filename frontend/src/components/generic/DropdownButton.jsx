@@ -1,6 +1,6 @@
 // forwardRef again here!
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Dropdown, Form } from "react-bootstrap";
 
 // Dropdown needs access to the DOM of the Menu to measure it
@@ -33,17 +33,31 @@ const CustomMenu = React.forwardRef(
   }
 );
 
-const DropdownButton = ({ title, items, onSelect, required }) => {
+const DropdownButton = ({
+  title,
+  items,
+  onSelect,
+  required,
+  disabled,
+  category = null,
+}) => {
   const [selected, setSelected] = useState(null);
   const handleSelect = (eventKey) => {
     const selectedItem = items.find((item, idx) => String(idx) === eventKey);
     setSelected(selectedItem);
     if (onSelect) onSelect(selectedItem);
   };
+  useEffect(() => {
+    if (category) {
+      setSelected(category);
+    }
+  }, [category]);
+
   return (
     <div>
       <Dropdown onSelect={handleSelect}>
         <Dropdown.Toggle
+          disabled={disabled}
           variant="outline-primary"
           id="dropdown-custom-components"
           className={required && !selected ? "is-invalid" : ""}

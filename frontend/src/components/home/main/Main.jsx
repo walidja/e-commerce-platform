@@ -1,13 +1,39 @@
 import { Button, Card, Col, Placeholder, Row } from "react-bootstrap";
 import Categories from "./Categories";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import ProductGrid from "../../generic/productDetails/ProductGrid";
+import { getAllProducts, getProductsByCategory } from "../../../api/products";
+import AddProductModal from "../../generic/productDetails/AddProductModal";
 
 const Main = () => {
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  useEffect(() => {
+    // Fetch products based on selected category
+    const fetchProducts = async () => {
+      if (category) {
+        setProducts(await getProductsByCategory(category.id));
+        return;
+      } else {
+        setProducts(await getAllProducts());
+      }
+    };
+    fetchProducts();
+  }, [category]);
+
+  const handleProductClick = (product) => {
+    product.models = product.productModels;
+    setSelectedProduct(product);
+    setShowModal(true);
+  };
+
   return (
     <Row className="g-4 min-vh-100">
-      <Col md={2} className="sidebar ps-4 pt-3 bg-secondary text-white">
-        <Categories setCategory={setCategory} />
+      <Col md={2} className="sidebar">
+        <Categories setCategory={setCategory} category={category} />
       </Col>
       <Col md={10} className="content bg-light">
         <h2>Welcome to Yalla Market</h2>
@@ -15,31 +41,28 @@ const Main = () => {
           Explore our wide range of products and enjoy a seamless shopping
           experience.
         </p>
-        <div className="product-list">
-          <Row className="g-4">
-            {/* Product cards will go here */}
-            <Col md={4}>
-              <Card>
-                <Placeholder
-                  as="image"
-                  variant="top"
-                  animation="wave"
-                  src="../assets/sample-product.jpg"
-                  alt="Sample Product"
-                />
-                <Card.Body>
-                  <Card.Title>Sample Product</Card.Title>
-                  <Card.Text>$19.99</Card.Text>
-                  <Button variant="primary">Add to Cart</Button>
-                </Card.Body>
-                <Card.Footer>
-                  <small className="text-muted">Last updated 3 mins ago</small>
-                </Card.Footer>
-              </Card>
-            </Col>
-          </Row>
-        </div>
+        {products.length === 0 ? (
+          <>
+            <p>
+              No products found for category <strong>{category?.name}</strong>
+            </p>
+            <Placeholder as={Card} className="m-4" />
+          </>
+        ) : (
+          <ProductGrid
+            products={products}
+            handleProductClick={handleProductClick}
+          />
+        )}
       </Col>
+      <AddProductModal
+        product={selectedProduct}
+        setProduct={setSelectedProduct}
+        setShowModal={setShowModal}
+        shopId={selectedProduct?.shopId}
+        showModal={showModal}
+        isEditable={false}
+      />
     </Row>
   );
 };

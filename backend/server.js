@@ -14,6 +14,7 @@ const https = require("https"); // Import the HTTPS module
 const fs = require("fs"); // Import the File System module
 const path = require("path"); // Import the Path module for resolving file paths
 const productsRouter = require("./src/routes/products");
+const { createDirectoryIfNotExists } = require("./src/utils/fileUtils");
 
 const app = express();
 const PORT = process.env.PORT;
@@ -27,15 +28,25 @@ app.use(
 );
 app.use(cookieParser());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// 2. Define the path to your uploads directory
+const uploadsDir = path.join(__dirname, "uploads");
+// 3. Ensure the uploads directory exists
+createDirectoryIfNotExists(uploadsDir);
+
+// Serve static files from the 'uploads' directory
+app.use("/uploads", express.static(uploadsDir));
+
 app.use("/user", userRouter);
 app.use("/categories", categoryRouter);
 app.use("/products", productsRouter);
 
 // Middleware to authenticate JWT tokens
-app.use(verifyJWT);
+// app.use(verifyJWT);
 
-app.use("/auth", authRouter);
-app.use("/shop", shopRouter);
+app.use("/auth", verifyJWT, authRouter);
+app.use("/shop", verifyJWT, shopRouter);
 
 // Middleware to handle 404 errors
 app.use(handlePageNotFound);

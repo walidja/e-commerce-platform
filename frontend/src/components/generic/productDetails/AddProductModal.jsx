@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Button, Modal } from "react-bootstrap";
-import LoadingButton from "../../../generic/LoadingButton";
-import CONSTANTS from "../../../../utils/constants";
+import LoadingButton from "../LoadingButton";
+import CONSTANTS from "../../../utils/constants";
 import ProductForm from "./ProductForm";
-import { addShopProduct } from "../../../../api/shop";
-import RedAlert from "../../../generic/RedAlert";
+import { addShopProduct } from "../../../api/shop";
+import RedAlert from "../RedAlert";
 
 const AddProductModal = ({
   showModal,
@@ -12,6 +12,7 @@ const AddProductModal = ({
   shopId,
   product,
   setProduct,
+  isEditable = true,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -46,6 +47,11 @@ const AddProductModal = ({
       });
   };
 
+  const onAddToCart = () => {
+    console.log("Adding to cart:", product);
+    // Implement add to cart logic here
+  };
+
   return (
     <Modal
       size="lg"
@@ -54,7 +60,9 @@ const AddProductModal = ({
       onHide={() => setShowModal(false)}
     >
       <Modal.Header closeButton>
-        <Modal.Title>Add New Product</Modal.Title>
+        <Modal.Title>
+          {isEditable ? "Add New Product" : "View Product"}
+        </Modal.Title>
       </Modal.Header>
       <RedAlert message={message} />
       <Modal.Body>
@@ -64,28 +72,31 @@ const AddProductModal = ({
           setProduct={setProduct}
           handleChange={handleChange}
           saveChanges={saveProduct}
-          isEditable={true}
+          isEditable={isEditable}
+          onAddToCart={onAddToCart}
         />
       </Modal.Body>
-      <Modal.Footer className="custom-modal-footer">
-        <Button
-          variant="secondary"
-          onClick={() => {
-            setShowModal(false);
-            setProduct({
-              ...CONSTANTS.PRODUCT,
-              ["models"]: [CONSTANTS.PRODUCT_MODEL],
-            });
-          }}
-        >
-          Cancel
-        </Button>
-        <LoadingButton
-          buttonName={"Add Product"}
-          form={"add-product-form"}
-          isLoading={isLoading}
-        />
-      </Modal.Footer>
+      {isEditable && (
+        <Modal.Footer className="custom-modal-footer">
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setShowModal(false);
+              setProduct({
+                ...CONSTANTS.PRODUCT,
+                ["models"]: [CONSTANTS.PRODUCT_MODEL],
+              });
+            }}
+          >
+            Cancel
+          </Button>
+          <LoadingButton
+            buttonName={"Add Product"}
+            form={"add-product-form"}
+            isLoading={isLoading}
+          />
+        </Modal.Footer>
+      )}
     </Modal>
   );
 };

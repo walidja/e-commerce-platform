@@ -54,57 +54,83 @@ const getShopByUserId = async (req, res) => {
 
 const addShopProduct = async (req, res) => {
   const { id } = req.params;
-  const { name, categoryId, description, models } = req.body;
-  if (!name || !categoryId || !description) {
+  let {
+    name,
+    categoryId,
+    description,
+    models_name,
+    models_price,
+    models_stock,
+    models_description,
+  } = req.body;
+  const files = req.files || [];
+  models_name = Array.isArray(models_name) ? models_name : [models_name];
+  models_price = Array.isArray(models_price) ? models_price : [models_price];
+  models_stock = Array.isArray(models_stock) ? models_stock : [models_stock];
+  models_description = Array.isArray(models_description)
+    ? models_description
+    : [models_description];
+  if (
+    !name ||
+    !categoryId ||
+    !description ||
+    !models_name ||
+    !models_price ||
+    !models_stock ||
+    !models_description
+  ) {
     return res.status(CODE_RESPONSES.BAD_REQUEST).json({
       error: "add_product_fail",
       message: "All data needed. Please provide name, category and description",
     });
   }
-  try {
-    const [product, productModels] = await prisma.$transaction(async (tx) => {
-      const product = await tx.product.create({
-        data: {
-          name,
-          categoryId,
-          description,
-          shopId: id,
-        },
-      });
-      for (const model of models) {
-        if (!Object.values(model).every((value) => value)) {
-          throw new Error(
-            "All model fields are mandatory. Please fill them out."
-          );
-        }
-        if (model.stock < 0 || model.price < 0) {
-          throw new Error("stock or price cannot be negative");
-        }
-      }
 
-      const modelsWithProductId = models.map((model) => ({
-        ...model,
-        productId: product.id,
-        price: parseFloat(model.price),
-        stock: parseInt(model.stock),
-      }));
-      const productModels = await tx.productModel.createMany({
-        data: modelsWithProductId,
-      });
-      return [product, productModels];
+  if (files.length !== models_name.length) {
+    console.log("Model images count does not match model names count");
+    console.log("Files:", files);
+    console.log("Model names:", models_name);
+    return res.status(CODE_RESPONSES.BAD_REQUEST).json({
+      error: "add_product_fail",
+      message: "All model images must be uploaded.",
     });
-    if (!product || !productModels) {
-      return res.status(CODE_RESPONSES.BAD_REQUEST).json({
-        error: "add_product_transaction_failed",
-        message: "Failed to add new product",
-      });
+  }
+  const models = files.map((file, index) => ({
+    name: models_name[index],
+    price: parseFloat(models_price[index]),
+    stock: parseInt(models_stock[index]),
+    image: `uploads/${file.filename}`,
+    description: models_description[index],
+  }));
+  for (const model of models) {
+    if (!Object.values(model).every((value) => value)) {
+      throw new Error("All model fields are mandatory. Please fill them out.");
     }
-    console.log("New product added successfully!", product, productModels);
+    if (model.stock < 0 || model.price < 0) {
+      throw new Error("stock or price cannot be negative");
+    }
+  }
+  console.log("Adding product with models:", models);
+  try {
+    const productAdded = await prisma.product.create({
+      data: {
+        name,
+        categoryId,
+        description,
+        shopId: id,
+        productModels: {
+          create: models,
+        },
+      },
+      include: {
+        productModels: true, // Include product models in the response
+      },
+    });
+    console.log("New product added successfully!", productAdded);
 
     return res.status(CODE_RESPONSES.SUCCESS).json({
       status: "SUCCESS",
       message: "New product added successfully!",
-      data: { ...product, models: productModels },
+      data: productAdded,
     });
   } catch (err) {
     console.log("Failed to add new product", err);
