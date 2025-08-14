@@ -5,7 +5,7 @@ const cart = createAxiosInstance("cart");
 export const addToCart = async (item) => {
   try {
     // Check if item has a valid id
-    if (!item.id) {
+    if (!item.productModelId) {
       throw new Error("Item must have a valid id");
     }
     // Check if item has a valid quantity
@@ -16,7 +16,7 @@ export const addToCart = async (item) => {
     if (item.quantity > item.stock) {
       throw new Error("Insufficient inventory");
     }
-    return await cart.post("/add", item);
+    return await cart.post("/items", item);
   } catch (error) {
     console.error("Error adding to cart:", error);
     throw errorMessage(error);
@@ -25,7 +25,7 @@ export const addToCart = async (item) => {
 
 export const removeFromCart = async (itemId) => {
   try {
-    return await cart.delete(`/remove/${itemId}`);
+    return await cart.delete(`/items/${itemId}`);
   } catch (error) {
     console.error("Error removing from cart:", error);
     return errorMessage(error);

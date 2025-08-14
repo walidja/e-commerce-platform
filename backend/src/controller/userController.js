@@ -65,9 +65,11 @@ const registerUser = async (req, res) => {
         lastName,
         mobile,
         address,
+        cart: {
+          create: {},
+        },
       },
     });
-
     return res
       .status(CODE_RESPONSES.CREATED)
       .json({ status: "SUCCESS", data: newUser });

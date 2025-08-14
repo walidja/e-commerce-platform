@@ -4,7 +4,8 @@ const cors = require("cors");
 const userRouter = require("./src/routes/user");
 const authRouter = require("./src/routes/auth");
 const categoryRouter = require("./src/routes/category");
-const shopRouter = require("./src/routes/shop"); // Uncomment if you have a shop route
+const shopRouter = require("./src/routes/shop");
+const cartRouter = require("./src/routes/cart");
 
 const handlePageNotFound = require("./src/middleware/handlePageNotFound");
 const { verifyJWT } = require("./src/middleware/verifyJWT");
@@ -43,13 +44,14 @@ app.use("/categories", categoryRouter);
 app.use("/products", productsRouter);
 
 // Middleware to authenticate JWT tokens
-// app.use(verifyJWT);
+app.use(verifyJWT);
 
-app.use("/auth", verifyJWT, authRouter);
-app.use("/shop", verifyJWT, shopRouter);
+app.use("/auth", authRouter);
+app.use("/shop", shopRouter);
+app.use("/cart", cartRouter);
 
 // Middleware to handle 404 errors
-app.use(handlePageNotFound);
+// app.use(handlePageNotFound);
 
 // --- Certificate loading ---
 // Adjust paths if your certs are in a different folder

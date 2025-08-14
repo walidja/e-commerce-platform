@@ -75,7 +75,8 @@ const ProductForm = ({
 
   const onAddToCart = (index) => {
     const cartItem = {
-      ...product.productModels[index],
+      productModelId: product.productModels[index].id,
+      price: product.productModels[index].price,
       quantity: modelsQuantity[index],
     };
     console.log("Cart item:", cartItem);
