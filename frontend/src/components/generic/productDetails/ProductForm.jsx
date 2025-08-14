@@ -2,8 +2,11 @@ import { Button, Card, Col, Form, InputGroup, Row } from "react-bootstrap";
 import CONSTANTS from "../../../utils/constants";
 import ProductModelForm from "./ProductModelForm";
 import DropdownButton from "../DropdownButton";
+import LoadingButton from "../LoadingButton";
 import { useEffect, useState } from "react";
 import { getCategories } from "../../../api/categories";
+import { addToCart } from "../../../api/cart";
+import { toast } from "react-toastify";
 
 const ProductForm = ({
   formId,
@@ -12,11 +15,13 @@ const ProductForm = ({
   handleChange,
   saveChanges,
   isEditable,
-  onAddToCart,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState([]);
-  const [quantity, setQuantity] = useState(1);
+  const defaultQuantities = product.productModels?.map((model) => {
+    return model.stock < 1 ? 0 : 1;
+  });
+  const [modelsQuantity, setModelsQuantity] = useState(defaultQuantities);
 
   useEffect(() => {
     setIsLoading(true);
@@ -31,17 +36,17 @@ const ProductForm = ({
 
   const handleModelChange = (e, index) => {
     let { name, value } = e.target;
-    let newModels = product.models;
+    let newModels = product.productModels;
     if (name === "image") {
       value = e.target.files[0];
     }
     newModels.splice(index, 1, {
-      ...product.models[index],
+      ...product.productModels[index],
       [name]: value,
     });
     setProduct({
       ...product,
-      ["models"]: newModels,
+      ["productModels"]: newModels,
     });
   };
 
@@ -49,25 +54,43 @@ const ProductForm = ({
     // add the current model to the modles list
     setProduct({
       ...product,
-      ["models"]: [...product.models, CONSTANTS.PRODUCT_MODEL],
+      ["productModels"]: [...product.productModels, CONSTANTS.PRODUCT_MODEL],
     });
   };
 
   const removeModel = (index) => {
-    console.log("before product.models::", product.models);
-    console.log(`remove model '${index}'`);
-    product.models.splice(index, 1);
-    console.log("produce after remove:", product.models);
-
+    product.productModels.splice(index, 1);
     setProduct(product);
   };
 
-  const handleQuantityChange = (e) => {
+  const handleQuantityChange = (e, index) => {
     const value = Math.max(
       1,
-      Math.min(product.productModels[0].stock, Number(e.target.value))
+      Math.min(product.productModels[index].stock, Number(e.target.value))
     );
-    setQuantity(value);
+    const newModelsQuantity = [...modelsQuantity];
+    newModelsQuantity[index] = value;
+    setModelsQuantity(newModelsQuantity);
+  };
+
+  const onAddToCart = (index) => {
+    const cartItem = {
+      ...product.productModels[index],
+      quantity: modelsQuantity[index],
+    };
+    console.log("Cart item:", cartItem);
+    setIsLoading(true);
+    addToCart(cartItem)
+      .then(() => {
+        toast.success("Item added to cart successfully!");
+      })
+      .catch((error) => {
+        toast.error(`Error adding item to cart: ${error}`);
+        console.error("Error adding to cart:", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   return isLoading ? (
@@ -130,9 +153,9 @@ const ProductForm = ({
       <Card>
         <Card.Header>Add Models</Card.Header>
         <Card.Body>
-          {product.models.map((_, i) => (
+          {product.productModels.map((_, i) => (
             <>
-              {isEditable && product.models.length > 1 && (
+              {isEditable && product.productModels.length > 1 && (
                 <Button variant="outline-danger" onClick={() => removeModel(i)}>
                   Remove model
                 </Button>
@@ -144,33 +167,35 @@ const ProductForm = ({
                 handleChange={(e) => handleModelChange(e, i)}
                 key={i}
               />
-              {i < product.models.length - 1 && <hr />}
+              {!isEditable && (
+                <div className="d-flex mt-2">
+                  <LoadingButton
+                    buttonName={"Add to Cart"}
+                    isLoading={isLoading}
+                    form={"addto cart"}
+                    onClick={() => onAddToCart(i)}
+                  />
+                  <InputGroup className="mt-2">
+                    <Form.Control
+                      className="text-center"
+                      type="number"
+                      min={product.productModels[i].stock < 1 ? 0 : 1}
+                      max={product.productModels[i].stock}
+                      value={modelsQuantity[i]}
+                      onChange={(e) => handleQuantityChange(e, i)}
+                      style={{ maxWidth: "70px" }}
+                    />
+                  </InputGroup>
+                </div>
+              )}
+
+              {i < product.productModels.length - 1 && <hr />}
             </>
           ))}
         </Card.Body>
         <Card.Footer>
-          {isEditable ? (
+          {isEditable && (
             <Button onClick={onClickAnotherModelBtn}>Another model?</Button>
-          ) : (
-            <div className="d-flex">
-              <Button
-                className="text-nowrap me-3"
-                variant="primary"
-                onClick={onAddToCart}
-              >
-                Add to Cart
-              </Button>
-              <InputGroup className="mb-2">
-                <Form.Control
-                  type="number"
-                  min={1}
-                  max={product.productModels[0].stock}
-                  value={quantity}
-                  onChange={handleQuantityChange}
-                  style={{ maxWidth: "60px", textAlign: "center" }}
-                />
-              </InputGroup>
-            </div>
           )}
         </Card.Footer>
       </Card>

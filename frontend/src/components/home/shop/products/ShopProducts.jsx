@@ -30,9 +30,15 @@ const ShopProducts = ({ shopId }) => {
 
   const handleProductClick = (product) => {
     console.log("Product clicked:", product);
-    product.models = product.productModels;
+    // product.models = product.productModels;
     setProduct(product);
     setIsEditable(false);
+    setShowModal(true);
+  };
+
+  const clickAddProduct = () => {
+    setProduct(CONSTANTS.PRODUCT);
+    setIsEditable(true);
     setShowModal(true);
   };
 
@@ -58,7 +64,7 @@ const ShopProducts = ({ shopId }) => {
           zIndex: 1000,
         }}
         aria-label="Add Product"
-        onClick={() => setShowModal(true)}
+        onClick={clickAddProduct}
       >
         <Plus size={32} />
       </Button>

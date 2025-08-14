@@ -34,7 +34,7 @@ const AddProductModal = ({
         // setProduct(CONSTANTS.PRODUCT);
         setProduct({
           ...CONSTANTS.PRODUCT,
-          ["models"]: [CONSTANTS.PRODUCT_MODEL],
+          ["productModels"]: [CONSTANTS.PRODUCT_MODEL],
         });
         setMessage("");
         setShowModal(false);
@@ -45,11 +45,6 @@ const AddProductModal = ({
       .finally(() => {
         setIsLoading(false);
       });
-  };
-
-  const onAddToCart = () => {
-    console.log("Adding to cart:", product);
-    // Implement add to cart logic here
   };
 
   return (
@@ -73,7 +68,6 @@ const AddProductModal = ({
           handleChange={handleChange}
           saveChanges={saveProduct}
           isEditable={isEditable}
-          onAddToCart={onAddToCart}
         />
       </Modal.Body>
       {isEditable && (
@@ -84,7 +78,7 @@ const AddProductModal = ({
               setShowModal(false);
               setProduct({
                 ...CONSTANTS.PRODUCT,
-                ["models"]: [CONSTANTS.PRODUCT_MODEL],
+                ["productModels"]: [CONSTANTS.PRODUCT_MODEL],
               });
             }}
           >

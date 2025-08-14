@@ -14,7 +14,7 @@ const ProductModelForm = ({ product, index, isEditable, handleChange }) => {
             type="text"
             id="modal-model-name"
             name="name"
-            value={product.models[index].name}
+            value={product.productModels[index].name}
             onChange={handleChange}
             disabled={!isEditable}
             required
@@ -30,7 +30,7 @@ const ProductModelForm = ({ product, index, isEditable, handleChange }) => {
             type="text"
             id="modal-model-description"
             name="description"
-            value={product.models[index].description}
+            value={product.productModels[index].description}
             onChange={handleChange}
             disabled={!isEditable}
             required
@@ -47,7 +47,7 @@ const ProductModelForm = ({ product, index, isEditable, handleChange }) => {
             step="0.01"
             id="modal-price"
             name="price"
-            value={product.models[index].price}
+            value={product.productModels[index].price}
             onChange={handleChange}
             disabled={!isEditable}
             required
@@ -64,7 +64,7 @@ const ProductModelForm = ({ product, index, isEditable, handleChange }) => {
             type="number"
             name="stock"
             onChange={handleChange}
-            value={product.models[index].stock}
+            value={product.productModels[index].stock}
             disabled={!isEditable}
             required
           />
@@ -88,9 +88,9 @@ const ProductModelForm = ({ product, index, isEditable, handleChange }) => {
           </Col>
         )}
       </Form.Group>
-      {product.models[index].image && (
+      {product.productModels[index].image && (
         <Col className="text-center">
-          <ProductImage img={product.models[index].image} />
+          <ProductImage img={product.productModels[index].image} />
         </Col>
       )}
     </>

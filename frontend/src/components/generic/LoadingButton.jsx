@@ -1,12 +1,19 @@
 import { Button, Spinner } from "react-bootstrap";
-const LoadingButton = ({ isLoading, buttonName, form }) => {
+const LoadingButton = ({
+  isLoading,
+  buttonName,
+  form,
+  type = "submit",
+  onClick = () => {},
+}) => {
   return (
     <Button
-      type="submit"
+      type={type}
       variant="primary"
-      className="font-medium rounded-2xl py-2 mt-2"
+      className="font-medium rounded-2xl py-2 mt-2 text-nowrap"
       form={form}
       disabled={isLoading}
+      onClick={onClick}
     >
       {isLoading ? (
         <Spinner
