@@ -143,11 +143,11 @@ const Home = () => {
             </ListGroup.Item>
             <ListGroup.Item>
               <Link
-                to="/chart"
+                to="/cart"
                 className="text-decoration-none"
                 onClick={() => setShowSidebar(false)}
               >
-                Chart
+                Cart
               </Link>
             </ListGroup.Item>
             <ListGroup.Item>

@@ -16,7 +16,7 @@ export const addToCart = async (item) => {
     if (item.quantity > item.stock) {
       throw new Error("Insufficient inventory");
     }
-    return await cart.post("/items", item);
+    return await cart.post(`/`, item);
   } catch (error) {
     console.error("Error adding to cart:", error);
     throw errorMessage(error);
@@ -32,11 +32,36 @@ export const removeFromCart = async (itemId) => {
   }
 };
 
-export const getCartItems = async () => {
+export const updateCartItems = async (cartId, cartItems) => {
   try {
-    return await cart.get("/items");
+    console.log("[frontend] Updating cart items:", cartItems);
+    if (!cartId || !cartItems || !Array.isArray(cartItems)) {
+      throw new Error("Invalid cart ID or cart items");
+    }
+    const response = await cart.put(`/${cartId}/items`, { cartItems });
+    return response.data.data;
   } catch (error) {
-    console.error("Error fetching cart items:", error);
-    return errorMessage(error);
+    console.error("Error updating cart items:", error);
+    throw errorMessage(error);
+  }
+};
+
+export const removeAllCartItems = async (cartId) => {
+  try {
+    const response = await cart.delete(`/${cartId}/items`);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error removing all cart items:", error);
+    throw errorMessage(error);
+  }
+};
+
+export const getCart = async () => {
+  try {
+    const response = await cart.get("/");
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching cart:", error);
+    throw errorMessage(error);
   }
 };

@@ -154,10 +154,8 @@ const refreshJWTwithRememberMe = async (req, res, next) => {
         );
       }
       // If the token is valid, we can create a new access token
-      const accessToken = createSendAccessToken(decoded.userId, res, true);
-      res.status(CODE_RESPONSES.SUCCESS).json({
-        token: accessToken,
-      });
+      createSendAccessToken(decoded.userId, res, true);
+
       req.userId = decoded.userId;
       req.username = user.firstName + " " + user.lastName;
       next();

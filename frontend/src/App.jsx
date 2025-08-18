@@ -9,7 +9,7 @@ import Orders from "./components/home/Orders";
 import Settings from "./components/home/Settings";
 import Shop from "./components/home/shop/Shop";
 import Wishlist from "./components/home/Wishlist";
-import Chart from "./components/home/Chart";
+import Cart from "./components/home/Cart";
 import Main from "./components/home/main/Main";
 
 function App() {
@@ -27,7 +27,7 @@ function App() {
           <Route path="orders" element={<Orders />} />
           <Route path="shop" element={<Shop />} />
           <Route path="wishlist" element={<Wishlist />} />
-          <Route path="chart" element={<Chart />} />
+          <Route path="cart" element={<Cart />} />
         </Route>
       </Routes>
     </Router>

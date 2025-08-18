@@ -2,28 +2,6 @@ const { PrismaClient, Prisma } = require("../generated/prisma/client");
 const { CODE_RESPONSES } = require("../utils/constants");
 const prisma = new PrismaClient();
 
-const createCartIfNotExists = async (req, res) => {
-  try {
-    const userId = req.userId;
-    let cart = await prisma.cart.findFirst({
-      where: {
-        userId: userId,
-      },
-    });
-    if (!cart) {
-      // create cart
-      cart = await prisma.cart.create({
-        data: {
-          userId: userId,
-        },
-      });
-    }
-    return cart;
-  } catch (error) {
-    throw new Error("Failed to create cart: " + error.message);
-  }
-};
-
 const addToCart = async (req, res) => {
   const { productModelId, price, quantity } = req.body;
   const userId = req.userId;
@@ -37,11 +15,6 @@ const addToCart = async (req, res) => {
         cartItems: true,
       },
     });
-
-    if (!cart) {
-      cart = await createCartIfNotExists(req, res);
-    }
-    console.log("Cart found:", cart);
     const cartItem = await prisma.$transaction(async (tx) => {
       let cartItem = cart.cartItems.find(
         (item) => item.productModelId === productModelId
@@ -53,10 +26,8 @@ const addToCart = async (req, res) => {
       });
       if (cartItem) {
         // check if the required quantity is available
-        console.log("Current cart item quantity:", cartItem.quantity);
-        theQuantity = cartItem.quantity + theQuantity;
-        console.log("Total quantity to add:", theQuantity);
-        if (theQuantity > productModel.stock) {
+        let updatedQuantity = cartItem.quantity + theQuantity;
+        if (updatedQuantity > productModel.stock) {
           return res.status(CODE_RESPONSES.BAD_REQUEST).json({
             error: "Insufficient quantity",
             message: `Only ${productModel.stock} items available`,
@@ -68,7 +39,7 @@ const addToCart = async (req, res) => {
             id: cartItem.id,
           },
           data: {
-            quantity: theQuantity,
+            quantity: updatedQuantity,
           },
         });
       } else {
@@ -88,7 +59,7 @@ const addToCart = async (req, res) => {
         },
         data: {
           totalCart: {
-            set: price * theQuantity,
+            increment: price * theQuantity,
           },
         },
       });
@@ -97,8 +68,6 @@ const addToCart = async (req, res) => {
     });
     return res.status(CODE_RESPONSES.SUCCESS).json({ data: cartItem });
   } catch (error) {
-    console.log("Error adding to cart:", error);
-
     return res
       .status(CODE_RESPONSES.INTERNAL_SERVER_ERROR)
       .json({ error: "Failed to add item to cart", message: error.message });
@@ -108,7 +77,12 @@ const addToCart = async (req, res) => {
 const removeFromCart = async (req, res) => {
   const { id } = req.params;
   const userId = req.userId;
-
+  if (!id) {
+    return res.status(CODE_RESPONSES.BAD_REQUEST).json({
+      error: "Missing required parameter",
+      message: "Please provide item id.",
+    });
+  }
   try {
     const cart = await prisma.cart.findUnique({
       where: {
@@ -162,13 +136,12 @@ const removeFromCart = async (req, res) => {
     });
   }
 };
-const getCartItems = async (req, res) => {
-  const userId = req.userId;
 
+const getCart = async (req, res) => {
   try {
     const cart = await prisma.cart.findUnique({
       where: {
-        userId: userId,
+        userId: req.userId,
       },
       include: {
         cartItems: {
@@ -184,16 +157,109 @@ const getCartItems = async (req, res) => {
         .status(CODE_RESPONSES.NOT_FOUND)
         .json({ error: "Cart not found" });
     }
-    return res.status(CODE_RESPONSES.SUCCESS).json({ data: cart.cartItems });
+
+    return res.status(CODE_RESPONSES.SUCCESS).json({ data: cart });
   } catch (error) {
     return res
       .status(CODE_RESPONSES.INTERNAL_SERVER_ERROR)
-      .json({ error: "Failed to retrieve cart items", message: error.message });
+      .json({ error: "Failed to retrieve cart", message: error.message });
+  }
+};
+
+const updateCartItems = async (req, res) => {
+  const { cartItems } = req.body;
+  if (!cartItems) {
+    return res.status(CODE_RESPONSES.BAD_REQUEST).json({
+      error: "Missing required fields",
+      message: "Please provide cart items.",
+    });
+  }
+  try {
+    const updatedItems = [];
+    await prisma.$transaction(async (tx) => {
+      for (const item of cartItems) {
+        const cartItem = await tx.cartItem.findUnique({
+          where: {
+            id: item.id,
+          },
+        });
+        if (cartItem) {
+          if (cartItem.quantity === item.quantity) {
+            continue;
+          }
+          // Update existing cart item
+          const updatedItem = await tx.cartItem.update({
+            where: {
+              id: cartItem.id,
+            },
+            data: {
+              quantity: item.quantity,
+            },
+          });
+          await tx.cart.update({
+            where: {
+              id: cartItem.cartId,
+            },
+            data: {
+              totalCart: {
+                // Determine if quantity increased or decreased
+                ...(item.quantity > cartItem.quantity
+                  ? {
+                      increment:
+                        updatedItem.price * (item.quantity - cartItem.quantity),
+                    }
+                  : {
+                      decrement:
+                        updatedItem.price * (cartItem.quantity - item.quantity),
+                    }),
+              },
+            },
+          });
+          updatedItems.push(updatedItem);
+        }
+      }
+    });
+
+    return res.status(CODE_RESPONSES.SUCCESS).json({ data: updatedItems });
+  } catch (error) {
+    return res
+      .status(CODE_RESPONSES.INTERNAL_SERVER_ERROR)
+      .json({ error: "Failed to update cart items", message: error.message });
+  }
+};
+
+const removeAllCartItems = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await prisma.$transaction(async (tx) => {
+      // Delete all cart items
+      await tx.cartItem.deleteMany({
+        where: {
+          cartId: id,
+        },
+      });
+      await tx.cart.update({
+        where: {
+          id: id,
+        },
+        data: {
+          totalCart: 0,
+        },
+      });
+    });
+
+    return res.status(CODE_RESPONSES.SUCCESS).json({ message: "Cart cleared" });
+  } catch (error) {
+    return res
+      .status(CODE_RESPONSES.INTERNAL_SERVER_ERROR)
+      .json({ error: "Failed to clear cart", message: error.message });
   }
 };
 
 module.exports = {
   addToCart,
   removeFromCart,
-  getCartItems,
+  updateCartItems,
+  removeAllCartItems,
+  getCart,
 };

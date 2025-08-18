@@ -69,8 +69,7 @@ const createSendAccessToken = async (userId, res, rememberMe) => {
   } else {
     res.clearCookie("rememberMeToken");
   }
-
-  return res.status(CODE_RESPONSES.SUCCESS).json({ token: accessToken });
+  return accessToken;
 };
 
 /**
