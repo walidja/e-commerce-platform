@@ -80,18 +80,15 @@ const createSendAccessToken = async (userId, res, rememberMe) => {
  */
 const createRememberMeToken = async (userId, res) => {
   console.log("Creating remember me token for user ID:", userId);
-  const rememberMeToken = signToken(
-    userId,
-    REMEMBER_ME_TOKEN_SECRET,
-    REMEMBER_ME_TOKEN_EXPIRATION
-  );
-  // Store the remember me token in databse
+  const rememberMeToken = generateToken();
+  const hashedToken = await hash(rememberMeToken); // Hash it
+
   const expiresAt = new Date(Date.now() + COOKIE_REMEMBER_ME_EXPIRATION);
 
   try {
     await prisma.rememberMeToken.create({
       data: {
-        token: await hash(rememberMeToken),
+        token: hashedToken,
         userId: userId,
         expiresAt,
       },
@@ -101,7 +98,8 @@ const createRememberMeToken = async (userId, res) => {
     return rememberMeToken;
   } catch (error) {
     console.error("Error creating remember me token:", error);
-    // dont break login flow if there is an error
+    // Do not set cookie if DB write fails
+    return null;
   }
 };
 

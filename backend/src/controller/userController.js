@@ -123,7 +123,7 @@ const login = async (req, res) => {
         .status(CODE_RESPONSES.UNAUTHORIZED)
         .json({ error: "invalid_input", message: "Invalid email or password" });
     }
-    const accessToken = createSendAccessToken(user.id, res, rememberMe);
+    const accessToken = await createSendAccessToken(user.id, res, rememberMe);
     return res.status(CODE_RESPONSES.SUCCESS).json({ token: accessToken });
   } catch (error) {
     console.log(error);

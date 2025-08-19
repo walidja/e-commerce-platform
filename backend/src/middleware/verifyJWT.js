@@ -106,6 +106,7 @@ const refreshJWTwithRememberMe = async (req, res, next) => {
     },
   });
   if (validRememberMeTokens.length === 0) {
+    res.clearCookie("rememberMeToken");
     return next(
       new AppError(
         "Invalid or expired remember me token.",
@@ -136,31 +137,17 @@ const refreshJWTwithRememberMe = async (req, res, next) => {
     );
   }
 
-  jwt.verify(
-    rememberMeToken,
-    REMEMBER_ME_TOKEN_SECRET,
-    async (err, decoded) => {
-      if (err) {
-        return next(
-          new AppError("Invalid remember me token.", CODE_RESPONSES.FORBIDDEN)
-        );
-      }
-      const user = await prisma.user.findUnique({
-        where: { id: decoded.userId },
-      });
-      if (!user) {
-        return next(
-          new AppError("User not found", CODE_RESPONSES.UNAUTHORIZED)
-        );
-      }
-      // If the token is valid, we can create a new access token
-      createSendAccessToken(decoded.userId, res, true);
+  const user = await prisma.user.findUnique({
+    where: { id: validRememberMeToken.userId },
+  });
+  if (!user) {
+    return next(new AppError("User not found", CODE_RESPONSES.UNAUTHORIZED));
+  }
+  // If the token is valid, we can create a new access token
+  await createSendAccessToken(user.id, res, true);
 
-      req.userId = decoded.userId;
-      req.username = user.firstName + " " + user.lastName;
-      next();
-    }
-  );
+  req.userId = user.id;
+  req.username = user.firstName + " " + user.lastName;
 };
 
 module.exports = {
