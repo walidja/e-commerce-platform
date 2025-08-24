@@ -1,7 +1,7 @@
 import { CloseButton, Col, Container, FormControl, Row } from "react-bootstrap";
 import ProductImage from "../../generic/productDetails/ProductImage";
 
-const CartTable = ({ cartItems, onRemoveItem, setCartItems }) => {
+const CartTable = ({ cartItems, onRemoveItem, setCartItems, isOrder }) => {
   const onChangeQuantity = (e, itemId) => {
     const newQuantity = parseInt(e.target.value);
     setCartItems(
@@ -41,6 +41,7 @@ const CartTable = ({ cartItems, onRemoveItem, setCartItems }) => {
               type="number"
               value={item.quantity}
               onChange={(e) => onChangeQuantity(e, item.id)}
+              disabled={isOrder}
             />
           </Col>
           <Col xs={2}>

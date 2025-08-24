@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Container, Row, Col, Form, Card } from "react-bootstrap";
 import { isGoodPasswordScore, scrollToTop } from "../../utils/helperFunctions";
-import { resetPassword } from "../../api/user";
+import { resetPassword } from "../../api/auth";
 import { useSearchParams } from "react-router-dom";
 import LoadingButton from "../generic/LoadingButton";
 import RedAlert from "../generic/RedAlert";

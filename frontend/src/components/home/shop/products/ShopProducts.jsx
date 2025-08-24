@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button, Row } from "react-bootstrap";
-import { Plus } from "react-bootstrap-icons";
+import { BsPlus } from "react-icons/bs";
 import AddProductModal from "../../../generic/productDetails/AddProductModal";
 import { getShopProducts } from "../../../../api/shop";
 import ProductGrid from "../../../generic/productDetails/ProductGrid";
@@ -66,7 +66,7 @@ const ShopProducts = ({ shopId }) => {
         aria-label="Add Product"
         onClick={clickAddProduct}
       >
-        <Plus size={32} />
+        <BsPlus size={32} />
       </Button>
       <AddProductModal
         setShowModal={setShowModal}

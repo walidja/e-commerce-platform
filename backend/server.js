@@ -6,6 +6,8 @@ const authRouter = require("./src/routes/auth");
 const categoryRouter = require("./src/routes/category");
 const shopRouter = require("./src/routes/shop");
 const cartRouter = require("./src/routes/cart");
+const shippingInfoRouter = require("./src/routes/shippingInfo");
+const paymentRouter = require("./src/routes/payment");
 
 const handlePageNotFound = require("./src/middleware/handlePageNotFound");
 const { verifyJWT } = require("./src/middleware/verifyJWT");
@@ -16,9 +18,11 @@ const fs = require("fs"); // Import the File System module
 const path = require("path"); // Import the Path module for resolving file paths
 const productsRouter = require("./src/routes/products");
 const { createDirectoryIfNotExists } = require("./src/utils/fileUtils");
+const stripeRouter = require("./src/routes/webhooks/StripeWebhook");
 
 const app = express();
 const PORT = process.env.PORT;
+app.use("/stripe-webhook", stripeRouter);
 
 app.use(credentials);
 app.use(
@@ -39,16 +43,18 @@ createDirectoryIfNotExists(uploadsDir);
 // Serve static files from the 'uploads' directory
 app.use("/uploads", express.static(uploadsDir));
 
-app.use("/user", userRouter);
+app.use("/auth", authRouter);
 app.use("/categories", categoryRouter);
 app.use("/products", productsRouter);
 
 // Middleware to authenticate JWT tokens
 app.use(verifyJWT);
 
-app.use("/auth", authRouter);
+app.use("/user", userRouter);
 app.use("/shop", shopRouter);
 app.use("/cart", cartRouter);
+app.use("/shippingInfo", shippingInfoRouter);
+app.use("/payment", paymentRouter);
 
 // Middleware to handle 404 errors
 // app.use(handlePageNotFound);

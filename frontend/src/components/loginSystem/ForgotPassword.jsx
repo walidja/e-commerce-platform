@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Form, Container, Row, Col, Card } from "react-bootstrap";
-import { forgotPassword } from "../../api/user";
+import { forgotPassword } from "../../api/auth";
 import LoadingButton from "../generic/LoadingButton";
 import RedAlert from "../generic/RedAlert";
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { EyeSlash, Eye } from "react-bootstrap-icons";
+import { BsEye, BsEyeSlash } from "react-icons/bs";
 import { Form } from "react-bootstrap";
 
 const PasswordInput = ({ password, setPassword }) => {
@@ -25,7 +25,7 @@ const PasswordInput = ({ password, setPassword }) => {
           zIndex: 2,
         }}
       >
-        {!showPassword ? <EyeSlash /> : <Eye />}
+        {!showPassword ? <BsEyeSlash /> : <BsEye />}
       </span>
     </div>
   );

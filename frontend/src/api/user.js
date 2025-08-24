@@ -2,54 +2,25 @@ import createAxiosInstance, { errorMessage } from "./api";
 
 const userApi = createAxiosInstance("user");
 
-export const registerUser = async (userData) => {
+export const checkAuth = async () => {
   try {
-    const response = await userApi.post("register", userData);
-    return response.data;
+    // Make a request to the backend to check authentication status
+    const response = await userApi.post("/check-auth");
+    return { data: response.data, isAuthenticated: true };
   } catch (error) {
-    throw errorMessage(error);
+    console.error("Error checking authentication status:", error);
+    return {
+      isAuthenticated: false,
+      error: errorMessage(error),
+    };
   }
 };
-
-export const loginUser = async (email, password, rememberMe) => {
+export const getUserProfile = async () => {
   try {
-    const response = await userApi.post("login", {
-      email,
-      password,
-      rememberMe,
-    });
-    return response.data;
+    const response = await userApi.get("/profile");
+    return response.data.data;
   } catch (error) {
-    throw errorMessage(error);
-  }
-};
-
-export const forgotPassword = async (email) => {
-  try {
-    const response = await userApi.post("forgot-password", { email });
-    return response.data;
-  } catch (error) {
-    throw errorMessage(error);
-  }
-};
-
-export const resetPassword = async (token, newPassword) => {
-  try {
-    const response = await userApi.post("reset-password", {
-      token,
-      newPassword,
-    });
-    return response.data;
-  } catch (error) {
-    throw errorMessage(error);
-  }
-};
-
-export const logout = async () => {
-  try {
-    await userApi.post("logout");
-    console.log("logged out successfully!!");
-  } catch (error) {
+    console.log("Error fetching user profile:", error);
     throw errorMessage(error);
   }
 };

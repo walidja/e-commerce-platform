@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form, Container, Row, Col, Card } from "react-bootstrap";
-import { loginUser } from "../../api/user";
+import { loginUser } from "../../api/auth";
 import RedAlert from "../generic/RedAlert";
 import PasswordInput from "./PasswordInput";
 import LoadingButton from "../generic/LoadingButton";

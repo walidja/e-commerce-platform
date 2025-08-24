@@ -2,18 +2,54 @@ import createAxiosInstance, { errorMessage } from "./api";
 
 const authApi = createAxiosInstance("auth");
 
-const checkAuth = async () => {
+export const registerUser = async (userData) => {
   try {
-    // Make a request to the backend to check authentication status
-    const response = await authApi.post("/check-auth");
-    return { data: response.data, isAuthenticated: true };
+    const response = await authApi.post("register", userData);
+    return response.data;
   } catch (error) {
-    console.error("Error checking authentication status:", error);
-    return {
-      isAuthenticated: false,
-      error: errorMessage(error),
-    };
+    throw errorMessage(error);
   }
 };
 
-export default checkAuth;
+export const loginUser = async (email, password, rememberMe) => {
+  try {
+    const response = await authApi.post("login", {
+      email,
+      password,
+      rememberMe,
+    });
+    return response.data;
+  } catch (error) {
+    throw errorMessage(error);
+  }
+};
+
+export const forgotPassword = async (email) => {
+  try {
+    const response = await authApi.post("forgot-password", { email });
+    return response.data;
+  } catch (error) {
+    throw errorMessage(error);
+  }
+};
+
+export const resetPassword = async (token, newPassword) => {
+  try {
+    const response = await authApi.post("reset-password", {
+      token,
+      newPassword,
+    });
+    return response.data;
+  } catch (error) {
+    throw errorMessage(error);
+  }
+};
+
+export const logout = async () => {
+  try {
+    await authApi.post("logout");
+    console.log("logged out successfully!!");
+  } catch (error) {
+    throw errorMessage(error);
+  }
+};

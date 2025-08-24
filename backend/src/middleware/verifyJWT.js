@@ -144,10 +144,12 @@ const refreshJWTwithRememberMe = async (req, res, next) => {
     return next(new AppError("User not found", CODE_RESPONSES.UNAUTHORIZED));
   }
   // If the token is valid, we can create a new access token
+  console.log("Refreshing access token for user ID:", user.id);
   await createSendAccessToken(user.id, res, true);
 
   req.userId = user.id;
   req.username = user.firstName + " " + user.lastName;
+  next();
 };
 
 module.exports = {

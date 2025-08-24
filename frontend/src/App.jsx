@@ -11,6 +11,10 @@ import Shop from "./components/home/shop/Shop";
 import Wishlist from "./components/home/Wishlist";
 import Cart from "./components/home/Cart";
 import Main from "./components/home/main/Main";
+import Checkout from "./components/home/Checkout/Checkout";
+import CheckoutComplete from "./components/home/Checkout/CheckoutComplete";
+import { Elements } from "@stripe/react-stripe-js";
+import { stripePromise } from "./utils/helperFunctions";
 
 function App() {
   return (
@@ -29,6 +33,16 @@ function App() {
           <Route path="wishlist" element={<Wishlist />} />
           <Route path="cart" element={<Cart />} />
         </Route>
+        <Route path="/checkout" element={<Checkout />} />
+        <Route
+          path="/checkout-complete"
+          element={
+            <Elements stripe={stripePromise}>
+              <CheckoutComplete />
+            </Elements>
+          }
+        ></Route>
+        <Route path="*" element={<div>404 Not Found</div>} />
       </Routes>
     </Router>
   );

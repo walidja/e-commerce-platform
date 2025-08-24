@@ -9,11 +9,11 @@ import {
   Offcanvas,
   Row,
 } from "react-bootstrap";
-import { List, Search } from "react-bootstrap-icons";
+import { BsList, BsSearch } from "react-icons/bs";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import checkAuth from "../../api/auth";
-import { logout } from "../../api/user";
+import { checkAuth } from "../../api/user";
+import { logout } from "../../api/auth";
 
 const Home = () => {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -64,7 +64,7 @@ const Home = () => {
           <Form className="w-100">
             <InputGroup className="flex-grow-1">
               <InputGroup.Text>
-                <Search />
+                <BsSearch />
               </InputGroup.Text>
               <Form.Control type="text" placeholder="Search" />
               <Button variant="primary">Search</Button>
@@ -78,7 +78,7 @@ const Home = () => {
               className="ms-2"
               onClick={() => setShowSidebar(!showSidebar)}
             >
-              <List />
+              <BsList />
             </Button>
           ) : (
             <a href="/login">Login</a>
@@ -170,7 +170,7 @@ const Home = () => {
         <Container>
           <Row>
             <Col className="text-center">
-              <p>&copy; 2023 Yalla Market. All rights reserved.</p>
+              <p>&copy; 2025 Yalla Market. All rights reserved.</p>
             </Col>
           </Row>
         </Container>

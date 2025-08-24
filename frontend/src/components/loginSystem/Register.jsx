@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import { Form, Container, Row, Col, Card } from "react-bootstrap";
-import { registerUser } from "../../api/user";
+import { registerUser } from "../../api/auth";
 import RedAlert from "../generic/RedAlert";
 import PasswordIndicator from "./PasswordIndicator";
-import { isGoodPasswordScore, scrollToTop } from "../../utils/helperFunctions";
+import {
+  everyFieldValid,
+  isGoodPasswordScore,
+  scrollToTop,
+} from "../../utils/helperFunctions";
 import { Link } from "react-router-dom";
 import PasswordInput from "./PasswordInput";
 import LoadingButton from "../generic/LoadingButton";
@@ -42,7 +46,7 @@ function Register() {
 
     setMessage(""); // Clear previous messages
     // Basic validation for mandatory fields
-    if (!Object.values(user).every((value) => value)) {
+    if (!everyFieldValid(user)) {
       setMessage("All fields are mandatory. Please fill them out.");
       return;
     }
