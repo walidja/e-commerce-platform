@@ -43,7 +43,7 @@ const handleWebhook = async (req, res) => {
         return res.status(CODE_RESPONSES.NOT_FOUND).send("Cart not found");
       }
 
-      const bill = await prisma.$transaction(async (tx) => {
+      const order = await prisma.$transaction(async (tx) => {
         // 1. Verify cart items quantities
         for (const item of cart.cartItems) {
           if (item.quantity > item.productModel.stock) {
@@ -51,12 +51,12 @@ const handleWebhook = async (req, res) => {
           }
         }
 
-        // 2. create bill and orders
-        const bill = await tx.bill.create({
+        // 2. create Order
+        const order = await tx.order.create({
           data: {
             userId: cart.userId,
-            amount: paymentIntent.amount,
-            orders: {
+            amount: paymentIntent.amount / 100,
+            orderItems: {
               createMany: {
                 data: cart.cartItems.map((item) => ({
                   productModelId: item.productModelId,
@@ -85,17 +85,17 @@ const handleWebhook = async (req, res) => {
           data: { paymentIntentId: null, totalCart: 0 },
         });
 
-        return bill;
+        return order;
       });
-      if (!bill) {
-        console.error("Bill creation failed");
+      if (!order) {
+        console.error("order creation failed");
         return res
           .status(CODE_RESPONSES.INTERNAL_SERVER_ERROR)
-          .send("Bill creation failed");
+          .send("order creation failed");
       }
       res
         .status(CODE_RESPONSES.SUCCESS)
-        .json({ message: "Payment processed successfully", data: bill });
+        .json({ message: "Payment processed successfully", data: order });
     } catch (dbError) {
       console.error("Database transaction failed:", dbError);
       res

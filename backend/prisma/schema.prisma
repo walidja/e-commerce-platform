@@ -27,7 +27,7 @@ model User {
   shop  Shop?
   cart Cart?
   shippingInformation ShippingInformation?
-  bills Bill[]
+  orders Order[]
   @@map("users")
 }
 
@@ -99,7 +99,7 @@ model ProductModel {
   productId   String
   product     Product @relation(fields: [productId], references: [id])
   cartItems   CartItem[]
-  orders      Order[]
+  orderItems  OrderItem[]
   @@map("product_models")
 }
 
@@ -145,7 +145,7 @@ model ShippingInformation {
   @@map("shipping_information")
 }
 
-model Bill {
+model Order {
   id        String   @id @default(cuid())
   userId    String
   amount    Float
@@ -153,19 +153,19 @@ model Bill {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id])
-  orders    Order[]
-  @@map("bills")
+  orderItems      OrderItem[]
+  @@map("orders")
 }
 
-model Order {
+model OrderItem {
   id        String   @id @default(cuid())
-  billId    String
+  orderId   String
   productModelId String
   quantity  Int
   price     Float
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  bill      Bill     @relation(fields: [billId], references: [id])
+  order      Order     @relation(fields: [orderId], references: [id])
   productModel ProductModel @relation(fields: [productModelId], references: [id])
-  @@map("orders")
+  @@map("order_items")
 }
